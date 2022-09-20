@@ -78,6 +78,7 @@ router.get('/pdf2PicList', async (ctx, next) => {
     // }
     ctx.body = {
       code: 0,
+      msg: 'success',
       data: {
         fileName: `${fileName}.pdf`,
         list: res.map(item => ({
