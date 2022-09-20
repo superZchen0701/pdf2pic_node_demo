@@ -10,6 +10,8 @@ const pdf2picOpts = {
   saveFilename: 'untitled',
   savePath: path.resolve(__dirname, `../public${picFolder}`),
   format: 'png',
+  width: 700,
+  height: 1000,
 };
 
 router.get('/', async (ctx, next) => {
@@ -30,8 +32,11 @@ router.get('/json', async (ctx, next) => {
 
 router.get('/pdf2PicList', async (ctx, next) => {
   const defaultBody = {
-    code: 0,
-    data: [],
+    code: -1,
+    data: {
+      fileName: '',
+      list: [],
+    },
   };
   try {
     const { fileName = '' } = ctx.query;
@@ -49,8 +54,11 @@ router.get('/pdf2PicList', async (ctx, next) => {
     );
     // pdf全部页面进行转换
     const pageToConvertAsImage = -1;
-    const res = await storeAsImage.bulk(pageToConvertAsImage);
-    // console.log(res);
+    // 转成base64
+    const res = await storeAsImage.bulk(pageToConvertAsImage, true);
+    // 转成图片
+    // const res = await storeAsImage.bulk(pageToConvertAsImage);
+    console.log(res);
     if (!Array.isArray(res) || !res.length) {
       ctx.body = {
         ...defaultBody,
@@ -58,22 +66,33 @@ router.get('/pdf2PicList', async (ctx, next) => {
       };
       return;
     }
-    const firstPath = res[0].path;
-    const index = firstPath.indexOf(picFolder);
-    if (index === -1) {
-      ctx.body = {
-        ...defaultBody,
-        msg: 'pdf转换出错：picFolder index = -1',
-      };
-      return;
-    }
-    const picPathSuffix = firstPath.substring(index);
+    // 转成图片用到的处理
+    // const firstPath = res[0].path;
+    // const index = firstPath.indexOf(picFolder);
+    // if (index === -1) {
+    //   ctx.body = {
+    //     ...defaultBody,
+    //     msg: 'pdf转换出错：picFolder index = -1',
+    //   };
+    //   return;
+    // }
     ctx.body = {
       code: 0,
-      data: res.map(item => ({
-        ...item,
-        url: `http://localhost:${port}${picPathSuffix}`,
-      })),
+      data: {
+        fileName: `${fileName}.pdf`,
+        list: res.map(item => ({
+          ...item,
+          base64: `data:image/png;base64,${item.base64}`,
+        })),
+        // 转成图片用到的处理
+        // list: res.map(item => {
+        //   const picPathSuffix = item.path.substring(index);
+        //   return {
+        //     ...item,
+        //     url: `http://localhost:${port}${picPathSuffix}`,
+        //   }
+        // }),
+      },
     };
   } catch (error) {
     console.log(error);
