@@ -26,8 +26,8 @@ npm start
 
 |环境       |前缀       |
 |-----------|----------|
-|测试|http://test.xxx.com|
 |本地开发|http://localhost:3000|
+|测试|http://test.xxx.com|
 |正式|http://xxx.com|
 
 ### 1. pdf相关
